@@ -1,0 +1,4 @@
+logs/
+.env
+.vscode
+httptest.http
