@@ -1,13 +1,9 @@
 package empty
 
-import (
-	"github.com/flastors/jwt-auth-golang/internal/core/user"
-)
-
 type EmptyMailer struct {
 }
 
-func NewUserEmail() user.UserEmail {
+func NewUserEmail() *EmptyMailer {
 	return &EmptyMailer{}
 }
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/flastors/jwt-auth-golang/internal/config"
+	"github.com/flastors/jwt-auth-golang/config"
 	"github.com/flastors/jwt-auth-golang/pkg/logging"
 	"github.com/flastors/jwt-auth-golang/pkg/utils"
 	"github.com/julienschmidt/httprouter"
@@ -14,14 +14,14 @@ import (
 
 type AccessHandler struct {
 	usecase AccessUseCase
-	cfg     *config.Config
+	config  config.AuthConfig
 	logger  *logging.Logger
 }
 
-func NewAccessHandler(usecase AccessUseCase, cfg *config.Config, logger *logging.Logger) Handler {
+func NewAccessHandler(usecase AccessUseCase, config config.AuthConfig, logger *logging.Logger) Handler {
 	return &AccessHandler{
 		usecase: usecase,
-		cfg:     cfg,
+		config:  config,
 		logger:  logger,
 	}
 }
@@ -53,7 +53,7 @@ func (h *AccessHandler) Authentication(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	refreshTokenB64 := utils.EncodeB64(tp.RefreshToken)
-	expiration := time.Now().Add(time.Duration(h.cfg.Auth.RefreshTokenLifetime) * time.Second)
+	expiration := time.Now().Add(time.Duration(h.config.RefreshLifetime) * time.Second)
 	refreshCookie := &http.Cookie{
 		Name:    "refresh_token",
 		Value:   refreshTokenB64,

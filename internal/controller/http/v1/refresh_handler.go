@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flastors/jwt-auth-golang/internal/config"
+	"github.com/flastors/jwt-auth-golang/config"
 	"github.com/flastors/jwt-auth-golang/internal/core/user"
 	"github.com/flastors/jwt-auth-golang/pkg/logging"
 	"github.com/flastors/jwt-auth-golang/pkg/utils"
@@ -16,14 +16,14 @@ import (
 
 type RefreshHandler struct {
 	usecase RefreshUseCase
-	cfg     *config.Config
+	config  config.AuthConfig
 	logger  *logging.Logger
 }
 
-func NewRefreshHandler(usecase RefreshUseCase, cfg *config.Config, logger *logging.Logger) Handler {
+func NewRefreshHandler(usecase RefreshUseCase, config config.AuthConfig, logger *logging.Logger) Handler {
 	return &RefreshHandler{
 		usecase: usecase,
-		cfg:     cfg,
+		config:  config,
 		logger:  logger,
 	}
 }
@@ -89,7 +89,7 @@ func (h *RefreshHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	expiration := time.Now().Add(time.Duration(h.cfg.Auth.RefreshTokenLifetime) * time.Second)
+	expiration := time.Now().Add(time.Duration(h.config.RefreshLifetime) * time.Minute)
 	refreshCookie.Value = utils.EncodeB64(tp.RefreshToken)
 	refreshCookie.Expires = expiration
 	http.SetCookie(w, refreshCookie)

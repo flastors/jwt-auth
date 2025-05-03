@@ -26,23 +26,23 @@ func NewRefreshUseCase(userRepo UserRepository, userToken UserToken, userEmail U
 
 func (r *RefreshUseCase) Run(ctx context.Context, accessToken, refreshToken, ip string) (*TokensPair, error) {
 	r.logger.Debug("Parsing tokens...")
-	rtc, err := r.userToken.ParseToken(refreshToken)
+	rtk, err := r.userToken.ParseToken(refreshToken)
 	if err != nil {
 		return nil, err
 	} else {
-		if rtc.Expired {
+		if rtk.Expired {
 			return nil, ErrExpiredRefreshToken
 		}
 	}
-	atc, err := r.userToken.ParseToken(accessToken)
+	atk, err := r.userToken.ParseToken(accessToken)
 	if err != nil {
 		return nil, err
 	}
 	r.logger.Debug("Comparing tokens...")
-	if atc.TokenID != rtc.TokenID {
+	if atk.TokenID != rtk.TokenID {
 		return nil, ErrInvalidTokenPair
 	}
-	u, err := r.userRepo.GetByID(ctx, rtc.UserID)
+	u, err := r.userRepo.GetByID(ctx, rtk.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,14 +50,11 @@ func (r *RefreshUseCase) Run(ctx context.Context, accessToken, refreshToken, ip 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.RefreshToken), []byte(hashedRefToken)); err != nil {
 		return nil, ErrInvalidRefreshToken
 	}
-	if rtc.IP != ip {
-		err := r.BadIP(ip, u.Email)
-		if err != nil {
-			r.logger.Warnf("failed to send email: %v", err)
-		}
+	if rtk.IP != ip {
+		r.badIP(ip, u.Email)
 	}
 	r.logger.Debug("Generating new tokens...")
-	tp, err := r.userToken.GeneratePair(rtc.UserID, ip)
+	tp, err := r.userToken.GeneratePair(rtk.UserID, ip)
 	if err != nil {
 		return nil, err
 	}
@@ -75,13 +72,9 @@ func (r *RefreshUseCase) Run(ctx context.Context, accessToken, refreshToken, ip 
 	return tp, nil
 }
 
-func (r *RefreshUseCase) BadIP(unknownIp, email string) error {
+func (r *RefreshUseCase) badIP(unknownIp, email string) {
 	r.logger.Debug("New Ip detected. Sending email...")
 	subject := "Security alert"
 	body := fmt.Sprintf("New IP address detected: %s", unknownIp)
-	err := r.userEmail.Send(email, subject, body)
-	if err != nil {
-		return err
-	}
-	return nil
+	r.userEmail.Send(email, subject, body)
 }

@@ -16,7 +16,7 @@ type Handler interface {
 	Register(router *httprouter.Router)
 }
 
-type Usecases struct {
+type UseCases struct {
 	AccessUseCase  AccessUseCase
 	RefreshUseCase RefreshUseCase
 }

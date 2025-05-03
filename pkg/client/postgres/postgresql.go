@@ -19,11 +19,11 @@ type Client interface {
 }
 
 type StorageConfig struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	Database string
+	Host     string `yaml:"host" env:"DB_HOST" env-default:"localhost"`
+	Port     string `yaml:"port" env:"DB_PORT" env-default:"5432"`
+	Username string `yaml:"username" env:"DB_USER" env-default:"postgres"`
+	Password string `yaml:"password" env:"DB_PASSWORD" env-default:"postgres"`
+	Database string `yaml:"database" env:"DB_NAME" env-default:"postgres"`
 }
 
 func NewClient(ctx context.Context, maxAttempts int, sc StorageConfig) (pool *pgxpool.Pool, err error) {

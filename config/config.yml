@@ -1,0 +1,21 @@
+app:
+  log_level: debug
+  prod: false
+  host: 0.0.0.0
+  port: 80
+  auth:
+    secret: secret
+    access_lifetime: 15 # минуты
+    refresh_lifetime: 259200 # минуты
+storage:
+  postgres:
+    host: localhost
+    port: 5432
+    username: postgres
+    password: postgres
+    database: postgres
+smtp: 
+  host: smtp.mail.ru
+  port: 465
+  username: me.avitio@mail.ru
+  password: ag18F87CQNyt034Q6KJm

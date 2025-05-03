@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flastors/jwt-auth-golang/internal/config"
+	"github.com/flastors/jwt-auth-golang/config"
 	"github.com/flastors/jwt-auth-golang/internal/core/user"
 	jwtlib "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -17,12 +17,12 @@ type CustomClaims struct {
 	jwtlib.RegisteredClaims
 }
 type userToken struct {
-	cfg *config.Config
+	config config.AuthConfig
 }
 
-func NewUserToken(cfg *config.Config) user.UserToken {
+func NewUserToken(config config.AuthConfig) user.UserToken {
 	return &userToken{
-		cfg: cfg,
+		config: config,
 	}
 }
 
@@ -32,11 +32,11 @@ func (t *userToken) GeneratePair(userId, ip string) (*user.TokensPair, error) {
 		return nil, err
 	}
 	tokenId := tokenUUID.String()
-	aTokenString, err := generateAccessToken(t.cfg.AccessTokenLifetime, t.cfg.Auth.SecretKey, tokenId, userId, ip)
+	aTokenString, err := generateAccessToken(t.config.AccessLifetime, t.config.Secret, tokenId, userId, ip)
 	if err != nil {
 		return nil, err
 	}
-	rTokenString, err := generateRefreshToken(t.cfg.RefreshTokenLifetime, t.cfg.Auth.SecretKey, tokenId, userId, ip)
+	rTokenString, err := generateRefreshToken(t.config.RefreshLifetime, t.config.Secret, tokenId, userId, ip)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (t *userToken) GeneratePair(userId, ip string) (*user.TokensPair, error) {
 func (t *userToken) ParseToken(tokenString string) (*user.TokenClaims, error) {
 	claims := &CustomClaims{}
 	_, err := jwtlib.ParseWithClaims(tokenString, claims, func(token *jwtlib.Token) (interface{}, error) {
-		return []byte(t.cfg.Auth.SecretKey), nil
+		return []byte(t.config.Secret), nil
 	})
 	expired := false
 	if err != nil {

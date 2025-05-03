@@ -3,17 +3,11 @@ package user
 import (
 	"context"
 	"errors"
-	"time"
 )
 
 var ErrInvalidRefreshToken = errors.New("invalid refresh token")
 var ErrExpiredRefreshToken = errors.New("refresh token expired")
 var ErrInvalidTokenPair = errors.New("invalid token pair")
-
-var (
-	AccessTokenLife  = 3 * time.Second
-	RefreshTokenLife = 24 * time.Hour
-)
 
 type UserRepository interface {
 	GetByID(ctx context.Context, userId string) (*User, error)
@@ -28,5 +22,5 @@ type UserToken interface {
 }
 
 type UserEmail interface {
-	Send(to, subject, body string) error
+	Send(to, subject, body string)
 }
